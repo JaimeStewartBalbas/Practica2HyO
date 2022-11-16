@@ -3,20 +3,22 @@ from constraint import *
 problem = Problem()
 
 #hardcodeamos los  asientos del bus en este caso 8 asientos
-asientos_totales = list(range(1,8+1))
+asientos_totales = list(range(1,6+1))
 
 #diccionario que me dice si una persona de movilidad reducida se sienta en una asiento, donde no se puede sentar el otro
 #Es decir si una persona con mov.red. se sienta en el 1,  en el 2 no se puede sentar nadie.
 dict = {1:2,2:1,5:6,6:5}
 
 #asientos de movilidad reducida
-asientos_reducidos = dict.keys()
+asientos_reducidos = list(dict.keys())
+
 
 
 #Tenemos 3 alumnos dos de ellos es de movilidad reducida.
-data  = [[1,1,"X","R",3],
+data  = [[1,1,"X","X",3],
          [2,2,"X","X",0],
-         [3,2,"X","R",1]]
+         [3,2,"X","R",1],
+         [4,2,"X","R",0]]
 
 alumnos_totales = list(range(1,len(data)+1))
 alumnos_reducidos = []
@@ -48,7 +50,7 @@ def notTogether(a,b):
 
 
 
-
+#Verificamos que los alumnos reducidos tengan hueco al lado.
 for i in alumnos_reducidos:
     for j in alumnos_totales:
         if i != j:
