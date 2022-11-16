@@ -3,13 +3,13 @@ from constraint import *
 problem = Problem()
 
 #hardcodeamos los  asientos del bus en este caso 8 asientos
-asientos_totales = list(range(1,6+1))
+asientos_totales = list(range(1,32+1))
 
 #diccionario que me dice si una persona de movilidad reducida se sienta en una asiento, donde no se puede sentar el otro
 #Es decir si una persona con mov.red. se sienta en el 1,  en el 2 no se puede sentar nadie.
-dict = {1:2,2:1,5:6,6:5}
-filas_bus = 3
-columnas_bus = 2
+dict = {1:2,2:1,3:4,4:3}
+filas_bus = 2
+columnas_bus = 4
 
 #asientos de movilidad reducida
 asientos_reducidos = list(dict.keys())
@@ -17,14 +17,21 @@ asientos_reducidos = list(dict.keys())
 
 
 #Tenemos 3 alumnos dos de ellos es de movilidad reducida.
-data  = [[1,1,"X","X",3],
+data  = [[1,1,"C","R",3],
          [2,2,"X","X",0],
          [3,2,"X","X",1],
-         [4,2,"X","R",0]]
+         [4,2,"C","X",0],
+         [5,1,"X","X",3],
+         [6,1,"X","R",3],
+         [7,1,"X","X",3],
+         [8,1,"X","X",3],
+         [9,1,"X","X",3]]
 
 alumnos_totales = list(range(1,len(data)+1))
 alumnos_reducidos = []
 alumnos_problematicos = []
+alumnos_menores = []
+alumnos_mayores = []
 #por cada persona en nuestro data-set, añadimos una variable con su id
 for i in range(len(data)):
     #Si la persona no es de movilidad reducida su dominio es asientos_totales
@@ -36,6 +43,11 @@ for i in range(len(data)):
         alumnos_reducidos.append(data[i][0])
     if data[i][2] == "C":
         alumnos_problematicos.append(data[i][0])
+    if  data[i][1] == 1:
+        alumnos_menores.append(data[i][0])
+    else:
+        alumnos_mayores.append(data[i][0])
+
 
 #Verifica que un único alumno se sienta en un solo sitio.
 problem.addConstraint(AllDifferentConstraint(),alumnos_totales)
@@ -78,7 +90,19 @@ def problematicStudents(a, b):
         return True
     return False
 
-            #Verificamos que los alumnos reducidos tengan hueco al lado.
+#Verificamos que los estudiantes menores se sienten en el módulo de delante
+def minorStudents(a):
+    if a <= 16:
+        return True
+    return False
+
+#Verificamos que los estudiantes mayores se sienten en el módulo de atras
+def mayorStudents(a):
+    if a > 16:
+        return True
+    return False
+
+#Verificamos que los alumnos reducidos tengan hueco al lado.
 for i in alumnos_reducidos:
     for j in alumnos_totales:
         if i != j:
@@ -90,4 +114,12 @@ for i in alumnos_problematicos:
             problem.addConstraint(problematicStudents,(i,j))
 
 
-print(problem.getSolutions())
+for i in alumnos_menores:
+    problem.addConstraint(minorStudents,(i,))
+
+for i in alumnos_mayores:
+    problem.addConstraint(mayorStudents,(i,))
+
+
+
+print(problem.getSolution())
