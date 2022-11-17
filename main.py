@@ -23,10 +23,7 @@ def allStudents(*combinations):
     n_alumnos = len(alumnos)
     counter = 0
     for i in combinations:
-
-        for j in i
-
-        print(variable)
+        pass
 
 problem.addConstraint(allStudents,variables)
 
