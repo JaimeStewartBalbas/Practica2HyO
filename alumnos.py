@@ -3,8 +3,8 @@ from constraint import *
 problem = Problem()
 
 #hardcodeamos los  asientos del bus en este caso 8 asientos
-filas_bus = 3
-columnas_bus = 2
+filas_bus = 2
+columnas_bus = 4
 n_asientos = filas_bus*columnas_bus
 asientos_totales = list(range(1,n_asientos+1))
 
@@ -18,8 +18,8 @@ asientos_reducidos = list(dict.keys())
 
 
 #Tenemos 3 alumnos dos de ellos es de movilidad reducida.
-data  = [[1,1,"C","X",1],
-         [2,1,"X","R",0],
+data  = [[1,1,"C","X",4],
+         [2,1,"X","X",0],
          [3,2,"X","X",0],
          [4,2,"C","X",1],
          [5,1,"X","R",0]]
@@ -30,6 +30,7 @@ alumnos_problematicos = []
 alumnos_menores = []
 alumnos_mayores = []
 alumnos_hermanos = {}
+
 #por cada persona en nuestro data-set, añadimos una variable con su id
 for i in range(len(data)):
     #Si la persona no es de movilidad reducida su dominio es asientos_totales
@@ -46,9 +47,7 @@ for i in range(len(data)):
     else:
         alumnos_mayores.append(data[i][0])
     if data[i][4] != 0:
-        for j in range(len(data)):
-            if data[j][4] == data[i][4] and i != j:
-                alumnos_hermanos[data[i][0]] = data[j][0]
+        alumnos_hermanos[data[i][0]] = data[i][4]
 
 
 print(alumnos_hermanos)
@@ -101,6 +100,12 @@ def getCloseSits(n_sit):
     else:
         return [n_sit - 1, n_sit + 1]
 
+def sitio_en_pasillo(n_sit):
+    if (n_sit % columnas_bus == columnas_bus//2) or (n_sit % columnas_bus == (columnas_bus//2 + 1)):
+        return True
+    return False
+
+
 def problematicStudents(a, b):
     sitios_no_validos = getColindant(a)
     if b not in sitios_no_validos:
@@ -124,7 +129,12 @@ def hermanos_juntos(a, b):
     if b in sitios_cercanos:
         return True
     return False
-
+def mayor_en_pasillo(a, b):
+    if sitio_en_pasillo(a):
+        sitios_cercanos = getCloseSits(a)
+        if b in sitios_cercanos:
+            return True
+    return False
 #Verificamos que los alumnos reducidos tengan hueco al lado.
 for i in alumnos_reducidos:
     for j in alumnos_totales:
@@ -148,10 +158,11 @@ for i in alumnos_mayores:
         problem.addConstraint(mayorStudents,(i,))
 
 # Restringimos que los hermanos solo se puedan sentar al lado
-for hermano_referencia in alumnos_hermanos:
-    for hermano in alumnos_hermanos:
-        if hermano != hermano_referencia:
-            problem.addConstraint(hermanos_juntos,(hermano_referencia, hermano))
-
+for hermano in alumnos_hermanos:
+    if data[hermano - 1][1] == 1 and data[alumnos_hermanos[hermano] - 1][1] == 2:
+        hermano_mayor = alumnos_hermanos[hermano]
+        problem.addConstraint(mayor_en_pasillo,(hermano_mayor, hermano))
+    else:
+        problem.addConstraint(hermanos_juntos, (hermano, alumnos_hermanos[hermano]))
 
 print(problem.getSolutions())
