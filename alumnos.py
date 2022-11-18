@@ -8,10 +8,59 @@ columnas_bus = 4
 n_asientos = filas_bus*columnas_bus
 asientos_totales = list(range(1,n_asientos+1))
 
-#diccionario que me dice si una persona de movilidad reducida se sienta en una asiento, donde no se puede sentar el otro
-#Es decir si una persona con mov.red. se sienta en el 1,  en el 2 no se puede sentar nadie.
-dictMenores = {1:2,2:1,3:4,4:3,13:14,14:13,15:16,16:15}
-dictMayores = {17:18,18:17,19:20,20:19}
+
+#diccionario que me dice si una persona de movilidad reducida se sienta en una asiento, donde no se puede sentar
+# el otro. Es decir si una persona con mov.red. se sienta en el 1,  en el 2 no se puede sentar nadie.
+
+dictMenores = {}
+dictMayores = {}
+
+def generateReducedSits():
+    # Los asientos para movilidad reducida se generan si hay asientos dos asientos juntos en el autobús teniendo enç
+    # cuenta el pasillo, y los sitios reservados se generan los más pegados al pasillo posible para que sea más
+    # fácil el acceso a ellos para las personas de movilidad reducida. Los asientos sobrantes seran asientos
+    # normales. Importante el bus tiene que tener un número de filas mayor que 1
+    if columnas_bus == 2:
+        dictMenores[1] = 2
+        dictMenores[2] = 1
+        dictMenores[n_asientos//2] = n_asientos//2 - 1
+        dictMenores[n_asientos//2 - 1] = n_asientos//2
+        dictMayores[n_asientos // 2 + 1] = n_asientos // 2 + 2
+        dictMayores[n_asientos // 2 + 2] = n_asientos // 2 + 1
+
+    elif(columnas_bus == 3 and filas_bus % 2 == 0):
+        dictMenores[1] = 2
+        dictMenores[2] = 1
+        dictMenores[n_asientos // 2] = n_asientos // 2 + 1
+        dictMenores[n_asientos // 2 + 1] = n_asientos // 2
+        dictMayores[n_asientos // 2 + 1] = n_asientos // 2 + 2
+        dictMayores[n_asientos // 2 + 2] = n_asientos // 2 + 1
+
+    elif (columnas_bus == 3 and filas_bus % 2 == 1):
+        dictMenores[1] = 2
+        dictMenores[2] = 1
+        dictMenores[n_asientos // 2] = n_asientos // 2 + 1
+        dictMenores[n_asientos // 2 + 1] = n_asientos // 2
+        dictMayores[n_asientos // 2 + 3] = n_asientos // 2 + 4
+        dictMayores[n_asientos // 2 + 4] = n_asientos // 2 + 3
+    else:
+        for i in range(1,columnas_bus//4 + 1):
+            dictMenores[columnas_bus//2 - i*2 + 1] = columnas_bus//2 - i*2 + 2
+            dictMenores[columnas_bus // 2 - i*2 + 2] = columnas_bus // 2 - i * 2 + 1
+            dictMenores[columnas_bus // 2 + i * 2 - 1] = columnas_bus // 2 + i * 2
+            dictMenores[columnas_bus // 2 + i * 2] = columnas_bus // 2 + i * 2 - 1
+            dictMenores[n_asientos//2 - columnas_bus//2 - i*2 + 1] = n_asientos//2 - columnas_bus//2 - i*2 + 2
+            dictMenores[n_asientos//2 - columnas_bus//2 - i*2 + 2] = n_asientos//2 - columnas_bus//2 - i*2 + 1
+            dictMenores[n_asientos // 2 - columnas_bus // 2 + i * 2 - 1] = n_asientos // 2 - columnas_bus // 2 + i * 2
+            dictMenores[n_asientos // 2 - columnas_bus // 2 + i * 2] = n_asientos // 2 - columnas_bus // 2 + i * 2 - 1
+            dictMayores[n_asientos // 2 + columnas_bus // 2 - i * 2 + 1] = n_asientos // 2 + columnas_bus // 2 - i * 2 +2
+            dictMayores[n_asientos // 2 + columnas_bus // 2 - i * 2 + 2] = n_asientos // 2 + columnas_bus // 2 - i * 2 + 1
+            dictMayores[n_asientos // 2 + columnas_bus // 2 + i * 2 - 1] = n_asientos // 2 + columnas_bus // 2 + i * 2
+            dictMayores[n_asientos // 2 + columnas_bus // 2 + i * 2] = n_asientos // 2 + columnas_bus // 2 + i * 2 - 1
+
+generateReducedSits()
+print(dictMenores)
+print(dictMayores)
 
 #asientos de movilidad reducida
 asientos_reducidos = list(dictMenores.keys()) + list(dictMayores.keys())
@@ -19,11 +68,10 @@ asientos_reducidos = list(dictMenores.keys()) + list(dictMayores.keys())
 
 
 #Tenemos 3 alumnos dos de ellos es de movilidad reducida.
-data  = [[1,2,"X","R",3],
-         [2,1,"X","R",0],
+data = [[1,2,"C","X",3],
+         [2,1,"X","X",4],
          [3,1,"X","X",1],
-         [4,2,"X","R",0]
-        ]
+         [4,2,"X","X",2]]
 
 alumnos_totales = list(range(1,len(data)+1))
 alumnos_reducidos = []
@@ -43,7 +91,7 @@ for i in range(len(data)):
         alumnos_reducidos.append(data[i][0])
     if data[i][2] == "C":
         alumnos_problematicos.append(data[i][0])
-    if  data[i][1] == 1:
+    if data[i][1] == 1:
         alumnos_menores.append(data[i][0])
     else:
         alumnos_mayores.append(data[i][0])
@@ -175,7 +223,7 @@ for i in alumnos_mayores:
 for hermano in alumnos_hermanos:
 
     if data[alumnos_hermanos[hermano] - 1][3] == "R":
-        if  data[alumnos_hermanos[hermano] - 1][1] == 1:
+        if data[alumnos_hermanos[hermano] - 1][1] == 1:
             problem.addConstraint(minorStudents, (hermano,))
         else:
             problem.addConstraint(mayorStudents, (hermano,))
@@ -188,4 +236,4 @@ for hermano in alumnos_hermanos:
     else:
         problem.addConstraint(hermanos_juntos, (hermano, alumnos_hermanos[hermano]))
 
-print(problem.getSolution())
+print(problem.getSolutions())
