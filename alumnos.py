@@ -3,26 +3,27 @@ from constraint import *
 problem = Problem()
 
 #hardcodeamos los  asientos del bus en este caso 8 asientos
-filas_bus = 2
+filas_bus = 8
 columnas_bus = 4
 n_asientos = filas_bus*columnas_bus
 asientos_totales = list(range(1,n_asientos+1))
 
 #diccionario que me dice si una persona de movilidad reducida se sienta en una asiento, donde no se puede sentar el otro
 #Es decir si una persona con mov.red. se sienta en el 1,  en el 2 no se puede sentar nadie.
-dict = {1:2,2:1,3:4,4:3}
+dictMenores = {1:2,2:1,3:4,4:3,13:14,14:13,15:16,16:15}
+dictMayores = {17:18,18:17,19:20,20:19}
 
 #asientos de movilidad reducida
-asientos_reducidos = list(dict.keys())
+asientos_reducidos = list(dictMenores.keys()) + list(dictMayores.keys())
 
 
 
 #Tenemos 3 alumnos dos de ellos es de movilidad reducida.
-data  = [[1,1,"C","X",4],
-         [2,1,"X","X",0],
-         [3,2,"X","X",0],
-         [4,2,"C","X",1],
-         [5,1,"X","R",0]]
+data  = [[1,2,"X","R",3],
+         [2,1,"X","R",0],
+         [3,1,"X","X",1],
+         [4,2,"X","R",0]
+        ]
 
 alumnos_totales = list(range(1,len(data)+1))
 alumnos_reducidos = []
@@ -47,21 +48,30 @@ for i in range(len(data)):
     else:
         alumnos_mayores.append(data[i][0])
     if data[i][4] != 0:
+
         alumnos_hermanos[data[i][0]] = data[i][4]
 
 
-print(alumnos_hermanos)
+
 
 # Verifica que un único alumno se sienta en un solo sitio.
 problem.addConstraint(AllDifferentConstraint(),alumnos_totales)
 
 #
-def notTogether(a,b):
+def notTogetherMenor(a,b):
     """Se asegura que, los alumnos de movilidad reducida se sienten solos"""
-    for i in dict:
-      if a == i and b != dict[i]:
+    for i in dictMenores:
+      if a == i and b != dictMenores[i]:
           return True
     return False
+
+def notTogetherMayor(a,b):
+    """Se asegura que, los alumnos de movilidad reducida se sienten solos"""
+    for i in dictMayores:
+      if a == i and b != dictMayores[i]:
+          return True
+    return False
+
 
 #Función que devuelve los asientos próximos al asiento que entra como parámetro
 def getColindant(n_sit):
@@ -125,9 +135,10 @@ def mayorStudents(a):
     return False
 
 def hermanos_juntos(a, b):
-    sitios_cercanos = getCloseSits(a)
-    if b in sitios_cercanos:
-        return True
+    if a <= n_asientos //2 and b <= n_asientos //2:
+        sitios_cercanos = getCloseSits(a)
+        if b in sitios_cercanos:
+            return True
     return False
 def mayor_en_pasillo(a, b):
     if sitio_en_pasillo(a):
@@ -139,7 +150,10 @@ def mayor_en_pasillo(a, b):
 for i in alumnos_reducidos:
     for j in alumnos_totales:
         if i != j:
-            problem.addConstraint(notTogether,(i,j))
+            if i in alumnos_menores:
+              problem.addConstraint(notTogetherMenor,(i,j))
+            else:
+                problem.addConstraint(notTogetherMayor,(i,j))
 
 # Restringimos que los alumnos problemáticos no se sienten cerca
 for i in alumnos_problematicos:
@@ -159,10 +173,19 @@ for i in alumnos_mayores:
 
 # Restringimos que los hermanos solo se puedan sentar al lado
 for hermano in alumnos_hermanos:
-    if data[hermano - 1][1] == 1 and data[alumnos_hermanos[hermano] - 1][1] == 2:
+
+    if data[alumnos_hermanos[hermano] - 1][3] == "R":
+        if  data[alumnos_hermanos[hermano] - 1][1] == 1:
+            problem.addConstraint(minorStudents, (hermano,))
+        else:
+            problem.addConstraint(mayorStudents, (hermano,))
+
+    elif data[hermano - 1][3] == "R":
+        pass
+    elif data[hermano - 1][1] == 1 and data[alumnos_hermanos[hermano] - 1][1] == 2:
         hermano_mayor = alumnos_hermanos[hermano]
         problem.addConstraint(mayor_en_pasillo,(hermano_mayor, hermano))
     else:
         problem.addConstraint(hermanos_juntos, (hermano, alumnos_hermanos[hermano]))
 
-print(problem.getSolutions())
+print(problem.getSolution())
