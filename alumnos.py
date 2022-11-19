@@ -3,8 +3,8 @@ from constraint import *
 problem = Problem()
 
 #hardcodeamos los  asientos del bus en este caso 8 asientos
-filas_bus = 8
-columnas_bus = 4
+filas_bus = 1
+columnas_bus = 8
 n_asientos = filas_bus*columnas_bus
 asientos_totales = list(range(1,n_asientos+1))
 
@@ -49,8 +49,9 @@ def generateReducedSits():
             dictMenores[columnas_bus // 2 - i*2 + 2] = columnas_bus // 2 - i * 2 + 1
             dictMenores[columnas_bus // 2 + i * 2 - 1] = columnas_bus // 2 + i * 2
             dictMenores[columnas_bus // 2 + i * 2] = columnas_bus // 2 + i * 2 - 1
-            dictMenores[n_asientos//2 - columnas_bus//2 - i*2 + 1] = n_asientos//2 - columnas_bus//2 - i*2 + 2
-            dictMenores[n_asientos//2 - columnas_bus//2 - i*2 + 2] = n_asientos//2 - columnas_bus//2 - i*2 + 1
+            if filas_bus > 1:
+                dictMenores[n_asientos//2 - columnas_bus//2 - i*2 + 1] = n_asientos//2 - columnas_bus//2 - i*2 + 2
+                dictMenores[n_asientos//2 - columnas_bus//2 - i*2 + 2] = n_asientos//2 - columnas_bus//2 - i*2 + 1
             dictMenores[n_asientos // 2 - columnas_bus // 2 + i * 2 - 1] = n_asientos // 2 - columnas_bus // 2 + i * 2
             dictMenores[n_asientos // 2 - columnas_bus // 2 + i * 2] = n_asientos // 2 - columnas_bus // 2 + i * 2 - 1
             dictMayores[n_asientos // 2 + columnas_bus // 2 - i * 2 + 1] = n_asientos // 2 + columnas_bus // 2 - i * 2 +2
