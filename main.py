@@ -7,9 +7,21 @@ with open('./test/test1.txt') as f:
 
 output = []
 for line in lines:
-    output.append(line.split(' '))
+    result = []
+    for char in line:
+        if char != "," and char != "\n":
+            try:
+                result.append(int(char))
+            except ValueError:
+                result.append(char)
+
+
+    output.append(result)
 
 print(output)
+
+
+
 
 
 
