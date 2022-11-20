@@ -233,5 +233,5 @@ x = problem.getSolution()
 
 #Imprimimos el resultado en pantalla con los asientos ordenados
 sorted_x = dict(sorted(x.items(), key=lambda item: item[1]))
-
-print(sorted_x)
+resultado = dict([(value, key) for key, value in sorted_x.items()])
+print(resultado)
