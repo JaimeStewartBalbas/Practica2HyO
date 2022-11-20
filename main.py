@@ -5,22 +5,23 @@ problem = Problem()
 with open('./test/test1.txt') as f:
     lines = f.readlines()
 
-output = []
+data = []
 for line in lines:
     result = []
+    firstcomma = False
+    s = ""
     for char in line:
-        if char != "," and char != "\n":
+        if char == "," and not firstcomma:
+            firstcomma = True
+            result.append(int(s))
+        if not firstcomma:
+            s += char
+        if firstcomma and char != "," and char != "\n":
             try:
                 result.append(int(char))
             except ValueError:
                 result.append(char)
-
-
-    output.append(result)
-
-print(output)
-
-
+    data.append(result)
 
 
 
@@ -62,10 +63,7 @@ asientos_reducidos = list(dictMenores.keys()) + list(dictMayores.keys())
 
 
 #Tenemos 3 alumnos dos de ellos es de movilidad reducida.
-data = [[1,2,"C","X",3],
-         [2,1,"X","X",4],
-         [3,1,"X","X",1],
-         [4,2,"X","X",2]]
+
 
 alumnos_totales = list(range(1,len(data)+1))
 alumnos_reducidos = []
@@ -230,4 +228,10 @@ for hermano in alumnos_hermanos:
     else:
         problem.addConstraint(hermanos_juntos, (hermano, alumnos_hermanos[hermano]))
 
-#print(problem.getSolutions())
+
+x = problem.getSolution()
+
+#Imprimimos el resultado en pantalla con los asientos ordenados
+sorted_x = dict(sorted(x.items(), key=lambda item: item[1]))
+
+print(sorted_x)
