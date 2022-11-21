@@ -233,5 +233,6 @@ x = problem.getSolution()
 
 #Imprimimos el resultado en pantalla con los asientos ordenados
 sorted_x = dict(sorted(x.items(), key=lambda item: item[1]))
-resultado = dict([(value, key) for key, value in sorted_x.items()])
+print("Número de soluciones: " + str(len(problem.getSolutions())))
+resultado = dict([(str(key)+str(data[key-1][2])+str(data[key-1][3]), value) for key, value in sorted_x.items()])
 print(resultado)
