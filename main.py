@@ -99,7 +99,6 @@ for i in range(1, 14):
     # Verifica que un único alumno se sienta en un solo sitio.
     problem.addConstraint(AllDifferentConstraint(),alumnos_totales)
 
-    #
     def notTogetherMenor(a,b):
         """Se asegura que, los alumnos de movilidad reducida se sienten solos"""
         for i in dictMenores:
