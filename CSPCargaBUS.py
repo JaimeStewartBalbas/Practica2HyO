@@ -255,14 +255,14 @@ x = problem.getSolution()
 if x:
     #Imprimimos el resultado en pantalla con los asientos ordenados
     sorted_x = dict(sorted(x.items(), key=lambda item: item[1]))
-    output = filename + ".output"
+    output = "output/" + filename + ".output"
     with open(output, 'w') as f:
         f.write( ( "Número de soluciones: " + str(len(problem.getSolutions())) +"\n" ) )
         resultado = dict([(str(key)+str(data[key-1][2])+str(data[key-1][3]), value) for key, value in sorted_x.items()])
         f.write(str(resultado))
 
 else:
-    output = filename + ".output"
+    output = "output/" + filename + ".output"
     with open(output, 'w') as f:
         f.write("Número de soluciones: 0\n")
         f.write("No hay solución")
