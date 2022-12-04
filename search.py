@@ -14,11 +14,13 @@ class Alumno:
     def __init__(self, asiento, reducido, conflictivo):
         self.asiento = asiento
         if reducido:
-            self.condicion = "R"
-        elif conflictivo:
+            self.movilidad= "R"
+        else:
+            self.movilidad = "X"
+        if conflictivo:
             self.condicion = "C"
         else:
-            self.condicion = "N"
+            self.conflictivo = "X"
 
 class Node:
     def __init__(self, father, info):
@@ -35,16 +37,80 @@ class Node:
             counter += 1
         return counter
 
+    def costeReducido(self):
+        if self.father.info.movilidad == "R":
+            return int('inf')
+        elif self.father.info.condicion == "C":
+            return 6
+        else:
+            return 3
 
-def añadirNormal():
-    pass
+    def costeNormal(self):
+        if self.father.info.movilidad == "R":
+            return 0
+        elif self.father.info.condicion == "C":
+            return 2
+        else:
+            return 1
 
-def añadirReducido():
-    pass
+    def añadirConflictivo(self):
+        if self.father.info.movilidad == "R":
+            return 3
+        elif self.father.info.condicion == "C":
+            return 3
+        else:
+            return 1
 
-def añadirConflictivo():
-    pass
 
+class State:
+    def __init__(self, normales, reducidos, conflictivos):
+        self.normales = normales
+        self.reducidos = reducidos
+        self.conflictivos = conflictivos
+
+    def removeRed(self):
+        if len(self.reducidos) > 0:
+            return 3
+        else:
+            return int('inf')
+
+
+
+def f(alumnos_restantes):
+    coste = 0
+    if alumnos_restantes[len(alumnos_restantes)].movilidad == "R":
+        return 6*len(alumnos_restantes)
+    for i in range(len(alumnos_restantes)):
+        if (alumnos_restantes[i].movilidad == "R" and alumnos_restantes[i + 1].movilidad == "R"):
+            return 6*len(alumnos_restantes)
+        if alumnos_restantes[i].movilidad == "R":
+            coste_alumno = 3
+        else:
+            coste_alumno = 1
+        if i != 0:
+            if alumnos_restantes[i - 1].movilidad == "R":
+                coste_alumno = 3
+            if alumnos_restantes[i - 1].condicion == "C":
+                coste_alumno *= 2
+            elif i != len(alumnos_restantes) and alumnos_restantes[i + 1].condicion == "C":
+                coste_alumno += 2
+
+        coste += coste_alumno
+    return coste
+
+
+def preconditions(alumnos_restantes):
+    normal, reducido, conflictivo = False, False, False
+    for i in alumnos_restantes:
+        if i.movilidad == "R":
+            reducido = True
+        if i.condicion == "C":
+            conflictivo = True
+        else:
+            normal = True
+        if normal and reducido and conflictivo:
+            return True, True, True
+    return normal, reducido, conflictivo
 
 def bestChoice(alumnos):
     alumnos_restantes = alumnos #open list
