@@ -12,4 +12,4 @@ python3 CSPCargaBUS.py ./CSP-tests/alumnos10.txt
 python3 CSPCargaBUS.py ./CSP-tests/alumnos11.txt
 python3 CSPCargaBUS.py ./CSP-tests/alumnos12.txt
 python3 CSPCargaBUS.py ./CSP-tests/alumnos13.txt
-python3 CSPCargaBUS.py ./CSP-tests/alumnos14.txt
+
