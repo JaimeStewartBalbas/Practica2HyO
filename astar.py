@@ -18,12 +18,6 @@ los dos se duplicara respecto al tiempo que se invertir ´ ´ıa si quien ayudas
 
 """
 
-
-
-
-
-
-
 class State:
     #Estado que representa
     def __init__(self,alumnosXX,alumnosXR,alumnosCX,alumnosCR):
@@ -41,10 +35,6 @@ class Node:
         self.coste = coste
         self.prevAl = prevAl
 
-
-
-
-
 class ASTAR:
 
     def heuristica1(self,estado:State)->int:
@@ -54,6 +44,16 @@ class ASTAR:
             return 3*reducidos + 1*(normales-reducidos)
         return float('inf')
 
+    def heuristica2(self, estado):
+        reducidos = len(estado.alumnosXR) + len(estado.alumnosCR)
+        normales = len(estado.alumnosXX)
+        conflictivos = len(estado.alumnosCX)
+        if normales + conflictivos >= reducidos:
+            if reducidos < normales:
+                return 3*reducidos + 1*(normales-reducidos) + 2*(conflictivos-2)+ 2
+            else:
+                return 3*reducidos + (reducidos - normales)*3 + 2*(normales+conflictivos-reducidos - 2) + 2
+        return float('inf')
 
     def isFinal(self,N:State):
         if not len(N.alumnosCR) and not len(N.alumnosXX) and not len(N.alumnosXR) and not len(N.alumnosCX):
@@ -165,13 +165,11 @@ class ASTAR:
         result = self.mergesortNodes(succesors)
         return result
 
-
-
     def mergeNodes(self,list_left,list_right):
         left, right = 0,0
         resultado =  []
         while right < len(list_right) and left < len(list_left):
-            if (list_left[left].coste+self.heuristica1(list_left[left].state)) < (list_right[right].coste+self.heuristica1(list_right[right].state)):
+            if (list_left[left].coste+self.heuristica2(list_left[left].state)) < (list_right[right].coste+self.heuristica1(list_right[right].state)):
                 resultado.append(list_left[left])
                 left+=1
             else:
@@ -182,9 +180,7 @@ class ASTAR:
         resultado += list_right[right:]
         return resultado
 
-
-
-    def mergesortNodes(self,lista:list[Node])->list:
+    def mergesortNodes(self,lista):
 
         if len(lista) <= 1:
             return lista
@@ -193,9 +189,6 @@ class ASTAR:
         left = self.mergesortNodes(lista[:mid])
         right = self.mergesortNodes(lista[mid:])
         return self.mergeNodes(left,right)
-
-
-
 
     def algorithm(self):
         initstate = State([1,2,3],[4,5,6],[7],[])
@@ -221,8 +214,6 @@ class ASTAR:
                 N = N.father
         else:
             print("No hay solución")
-
-
 
 astar = ASTAR()
 astar.algorithm()
