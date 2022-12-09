@@ -29,11 +29,12 @@ class State:
 
 
 class Node:
-    def __init__(self,coste:int,state:State,prevAl=None):
+    def __init__(self,coste:int,state:State,prevAl=None, prev_cost=None):
         self.father = None
         self.state = state
         self.coste = coste
         self.prevAl = prevAl
+        self.prev_confl = []
 
 class ASTAR:
 
@@ -98,38 +99,54 @@ class ASTAR:
 
         return float('inf')
 
-    def addCX(self,state:State,prevAl):
+    def addCX(self,state:State,prevAl, grandpa):
         if len(state.alumnosCX) > 0:
             if prevAl == None:
                 newstate = State(state.alumnosXX, state.alumnosXR, state.alumnosCX[1:], state.alumnosCR)
                 return [newstate, 1, "CX"]
             elif prevAl == "XX":
-                newstate = State(state.alumnosXX, state.alumnosXR, state.alumnosCX[1:], state.alumnosCR)
-                return [newstate, 2, "CX"]
+                if grandpa != "XR":
+                    newstate = State(state.alumnosXX, state.alumnosXR, state.alumnosCX[1:], state.alumnosCR)
+                    return [newstate, 2, "CX"]
+                else:
+                    newstate = State(state.alumnosXX, state.alumnosXR, state.alumnosCX[1:], state.alumnosCR)
+                    return [newstate, 1, "CX"]
             elif prevAl == "XR":
                 newstate = State(state.alumnosXX, state.alumnosXR, state.alumnosCX[1:], state.alumnosCR)
                 return [newstate, 3, "CX"]
             elif prevAl == "CX":
-                newstate = State(state.alumnosXX, state.alumnosXR, state.alumnosCX[1:], state.alumnosCR)
-                return [newstate, 3, "CX"]
+                if grandpa != "XR" and grandpa != "CR":
+                    newstate = State(state.alumnosXX, state.alumnosXR, state.alumnosCX[1:], state.alumnosCR)
+                    return [newstate, 3, "CX"]
+                else:
+                    newstate = State(state.alumnosXX, state.alumnosXR, state.alumnosCX[1:], state.alumnosCR)
+                    return [newstate, 2, "CX"]
             elif prevAl == "CR":
                 newstate = State(state.alumnosXX, state.alumnosXR, state.alumnosCX[1:], state.alumnosCR)
                 return [newstate, 3, "CX"]
         return float('inf')
 
-    def addCR(self,state:State,prevAl):
+    def addCR(self,state:State,prevAl, grandpa):
         if len(state.alumnosCR) > 0 and (len(state.alumnosXX) + len(state.alumnosCX)) > 0:
             if prevAl == None:
                 newstate = State(state.alumnosXX, state.alumnosXR, state.alumnosCX, state.alumnosCR[1:])
                 return [newstate, 3, "CR"]
             elif prevAl == "XX":
-                newstate = State(state.alumnosXX, state.alumnosXR, state.alumnosCX, state.alumnosCR[1:])
-                return [newstate, 4, "CR"]
+                if grandpa != "XR" and grandpa != "CR":
+                    newstate = State(state.alumnosXX, state.alumnosXR, state.alumnosCX, state.alumnosCR[1:])
+                    return [newstate, 4, "CR"]
+                else:
+                    newstate = State(state.alumnosXX, state.alumnosXR, state.alumnosCX, state.alumnosCR[1:])
+                    return [newstate, 3, "CR"]
             elif prevAl == "XR":
                 return float('inf')
             elif prevAl == "CX":
-                newstate = State(state.alumnosXX, state.alumnosXR, state.alumnosCX, state.alumnosCR[1:])
-                return [newstate, 7, "CR"]
+                if grandpa != "XR" and grandpa != "CR":
+                    newstate = State(state.alumnosXX, state.alumnosXR, state.alumnosCX, state.alumnosCR[1:])
+                    return [newstate, 7, "CR"]
+                else:
+                    newstate = State(state.alumnosXX, state.alumnosXR, state.alumnosCX, state.alumnosCR[1:])
+                    return [newstate, 6, "CR"]
             elif prevAl == "CR":
                 return float('inf')
         return float('inf')
@@ -140,8 +157,12 @@ class ASTAR:
         succesors = []
         x = self.addXX(node.state,node.prevAl)
         y = self.addXR(node.state,node.prevAl)
-        z = self.addCX(node.state,node.prevAl)
-        w = self.addCR(node.state,node.prevAl)
+        if node.father is None:
+            z = self.addCX(node.state, node.prevAl, None)
+            w = self.addCR(node.state, node.prevAl, None)
+        else:
+            z = self.addCX(node.state,node.prevAl, node.father.prevAl)
+            w = self.addCR(node.state,node.prevAl, node.father.prevAl)
         if  type(x) != float:
             newnode = Node(node.coste + x[1],x[0],x[2])
             newnode.father = node
@@ -164,7 +185,6 @@ class ASTAR:
 
         result = self.mergesortNodes(succesors)
         return result
-
     def mergeNodes(self,list_left,list_right):
         left, right = 0,0
         resultado =  []
