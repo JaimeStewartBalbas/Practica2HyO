@@ -20,21 +20,22 @@ los dos se duplicara respecto al tiempo que se invertir ´ ´ıa si quien ayudas
 
 class State:
     #Estado que representa
-    def __init__(self,alumnosXX,alumnosXR,alumnosCX,alumnosCR):
+    def __init__(self,alumnosXX,alumnosXR,alumnosCX,alumnosCR,prev_confl=[]):
         self.alumnosXX = alumnosXX
         self.alumnosXR = alumnosXR
         self.alumnosCX = alumnosCX
         self.alumnosCR = alumnosCR
+        self.prev_confl = prev_confl
 
 
 
 class Node:
-    def __init__(self,coste:int,state:State,prevAl=None, prev_cost=None):
+    def __init__(self,coste:int,state:State,prevAl=None):
         self.father = None
         self.state = state
         self.coste = coste
         self.prevAl = prevAl
-        self.prev_confl = []
+
 
 class ASTAR:
 
@@ -99,30 +100,61 @@ class ASTAR:
 
         return float('inf')
 
-    def addCX(self,state:State,prevAl, grandpa):
+    def addCX(self,state:State,prevAl, grandpa,index):
+        extra = 0
         if len(state.alumnosCX) > 0:
             if prevAl == None:
-                newstate = State(state.alumnosXX, state.alumnosXR, state.alumnosCX[1:], state.alumnosCR)
+                lista = state.alumnosCX.copy()
+                del lista[index]
+                newstate = State(state.alumnosXX, state.alumnosXR, lista, state.alumnosCR,state.prev_confl)
+                newstate.prev_confl.append(state.alumnosCX[index])
                 return [newstate, 1, "CX"]
             elif prevAl == "XX":
                 if grandpa != "XR":
-                    newstate = State(state.alumnosXX, state.alumnosXR, state.alumnosCX[1:], state.alumnosCR)
+                    asiento = state.alumnosCX[index]
+                    for i in state.prev_confl:
+                        if asiento > i:
+                            extra += 1
+
+                    lista = state.alumnosCX.copy()
+                    del lista[index]
+                    newstate = State(state.alumnosXX, state.alumnosXR, lista, state.alumnosCR,
+                                     state.prev_confl)
+                    newstate.prev_confl.append(state.alumnosCX[index])
                     return [newstate, 2, "CX"]
                 else:
-                    newstate = State(state.alumnosXX, state.alumnosXR, state.alumnosCX[1:], state.alumnosCR)
+                    lista = state.alumnosCX.copy()
+                    del lista[index]
+                    newstate = State(state.alumnosXX, state.alumnosXR, lista, state.alumnosCR,
+                                     state.prev_confl)
+                    newstate.prev_confl.append(state.alumnosCX[index])
                     return [newstate, 1, "CX"]
             elif prevAl == "XR":
-                newstate = State(state.alumnosXX, state.alumnosXR, state.alumnosCX[1:], state.alumnosCR)
+                lista = state.alumnosCX.copy()
+                del lista[index]
+                newstate = State(state.alumnosXX, state.alumnosXR, lista, state.alumnosCR, state.prev_confl)
+                newstate.prev_confl.append(state.alumnosCX[index])
                 return [newstate, 3, "CX"]
             elif prevAl == "CX":
                 if grandpa != "XR" and grandpa != "CR":
-                    newstate = State(state.alumnosXX, state.alumnosXR, state.alumnosCX[1:], state.alumnosCR)
+                    lista = state.alumnosCX.copy()
+                    del lista[index]
+                    newstate = State(state.alumnosXX, state.alumnosXR, lista, state.alumnosCR,
+                                     state.prev_confl)
+                    newstate.prev_confl.append(state.alumnosCX[index])
                     return [newstate, 3, "CX"]
                 else:
-                    newstate = State(state.alumnosXX, state.alumnosXR, state.alumnosCX[1:], state.alumnosCR)
+                    lista = state.alumnosCX.copy()
+                    del lista[index]
+                    newstate = State(state.alumnosXX, state.alumnosXR, lista, state.alumnosCR,
+                                     state.prev_confl)
+                    newstate.prev_confl.append(state.alumnosCX[index])
                     return [newstate, 2, "CX"]
             elif prevAl == "CR":
-                newstate = State(state.alumnosXX, state.alumnosXR, state.alumnosCX[1:], state.alumnosCR)
+                lista = state.alumnosCX.copy()
+                del lista[index]
+                newstate = State(state.alumnosXX, state.alumnosXR, lista, state.alumnosCR, state.prev_confl)
+                newstate.prev_confl.append(state.alumnosCX[index])
                 return [newstate, 3, "CX"]
         return float('inf')
 
@@ -211,7 +243,7 @@ class ASTAR:
         return self.mergeNodes(left,right)
 
     def algorithm(self):
-        initstate = State([1,2,3],[4,5,6],[7],[])
+        initstate = State([1,2,6,7,5,6,7,3],[4],[5,5,5],[7,3,1,3])
         node = Node(0,initstate,None)
         open = [node]
         closed = []
