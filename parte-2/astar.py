@@ -17,7 +17,6 @@ los dos se duplicara respecto al tiempo que se invertir ´ ´ıa si quien ayudas
 
 
 """
-
 class State:
     #Estado que representa
     def __init__(self,alumnosXX,alumnosXR,alumnosCX,alumnosCR):
@@ -86,7 +85,7 @@ class ASTAR:
                 lista = state.alumnosXX.copy()
                 del lista[index]
                 newstate = State(lista, state.alumnosXR, state.alumnosCX, state.alumnosCR)
-                return [newstate,0+extra,"XX",prev_confl]
+                return [newstate,0,"XX",prev_confl]
             elif prevAl == "CX":
                 lista = state.alumnosXX.copy()
                 del lista[index]
@@ -96,7 +95,7 @@ class ASTAR:
                 lista = state.alumnosXX.copy()
                 del lista[index]
                 newstate = State(lista, state.alumnosXR, state.alumnosCX, state.alumnosCR)
-                return [newstate,0+extra,"XX",prev_confl]
+                return [newstate,0,"XX",prev_confl]
         return float('inf')
 
 
@@ -158,7 +157,7 @@ class ASTAR:
                 lista = state.alumnosCX.copy()
                 del lista[index]
                 newstate = State(state.alumnosXX, state.alumnosXR, lista, state.alumnosCR)
-                return [newstate, 3+extra, "CX",prev_confl+[asiento]]
+                return [newstate, 3, "CX",prev_confl+[asiento]]
             elif prevAl == "CX":
                 if grandpa != "XR" and grandpa != "CR":
                     lista = state.alumnosCX.copy()
@@ -174,7 +173,7 @@ class ASTAR:
                 lista = state.alumnosCX.copy()
                 del lista[index]
                 newstate = State(state.alumnosXX, state.alumnosXR, lista, state.alumnosCR)
-                return [newstate, 3+extra, "CX",prev_confl+[asiento]]
+                return [newstate, 3, "CX",prev_confl+[asiento]]
 
         return float('inf')
 
@@ -279,7 +278,7 @@ class ASTAR:
         left, right = 0,0
         resultado =  []
         while right < len(list_right) and left < len(list_left):
-            if (list_left[left].coste+self.heuristica2(list_left[left].state)) < (list_right[right].coste+self.heuristica1(list_right[right].state)):
+            if (list_left[left].coste+self.heuristica1(list_left[left].state)) < (list_right[right].coste+self.heuristica1(list_right[right].state)):
                 resultado.append(list_left[left])
                 left+=1
             else:
@@ -300,8 +299,7 @@ class ASTAR:
         right = self.mergesortNodes(lista[mid:])
         return self.mergeNodes(left,right)
 
-    def algorithm(self):
-        initstate = State([11],[],[9,10],[])
+    def algorithm(self,initstate):
         node = Node(0,initstate,None)
         open = [node]
         closed = []
@@ -315,22 +313,54 @@ class ASTAR:
             else:
                 closed.append(N)
                 open = self.mergeNodes(open,self.expand(N))
+        resultado = []
         if exito:
-            print("Coste: " + str(N.coste))
+            print("Coste:" + str(N.coste))
             while N:
                 if N.prevAl:
-                    print(N.prevAl+":"+N.sitio)
-                    print(N.prev_confl)
+                    resultado.append(N.sitio)
 
                 N = N.father
+            return resultado
         else:
             print("No hay solución")
+            return resultado
+
+
+
+import sys
+
+filePath = "./ASTAR-tests/alumnos.prob"
+with open(filePath) as f:
+    input = eval(f.readline())
+
+alumnosXX,alumnosXR,alumnosCX,alumnosCR = [],[],[],[]
+
+
+for i in input:
+    if i[1:3] == "XX":
+        alumnosXX.append(input[i])
+    elif  i[1:3] == "CX":
+        alumnosCX.append(input[i])
+    elif i[1:3] == "XR":
+        alumnosXR.append(input[i])
+    elif i[1:3] == "CR":
+        alumnosCR.append(input[i])
+
+
+
+initstate = State(alumnosXX,alumnosXR,alumnosCX,alumnosCR)
 
 astar = ASTAR()
-astar.algorithm()
+result = astar.algorithm(initstate)
+new = result[::-1]
+inv_map = {v: k for k, v in input.items()}
+output = {}
+for i in new:
+    output[inv_map[int(i)]] = int(i)
 
 
-
+print(output)
 
 
 
