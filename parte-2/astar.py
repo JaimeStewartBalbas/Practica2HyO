@@ -40,6 +40,9 @@ class Node:
 
 class ASTAR:
 
+    def heuristica0(self)->int:
+        return 0
+
     def heuristica1(self,estado:State)->int:
         reducidos = len(estado.alumnosXR) + len(estado.alumnosCR)
         normales = len(estado.alumnosXX) + len(estado.alumnosCX)
@@ -47,16 +50,22 @@ class ASTAR:
             return 3*reducidos + 1*(normales-reducidos)
         return float('inf')
 
-    def heuristica2(self, estado):
-        reducidos = len(estado.alumnosXR) + len(estado.alumnosCR)
-        normales = len(estado.alumnosXX)
-        conflictivos = len(estado.alumnosCX)
-        if normales + conflictivos >= reducidos:
-            if reducidos < normales:
-                return 3*reducidos + 1*(normales-reducidos) + 2*(conflictivos-2)+ 2
-            else:
-                return 3*reducidos + (reducidos - normales)*3 + 2*(normales+conflictivos-reducidos - 2) + 2
+    def heuristica2(self,):
+
+
+
+    def heuristica01(self, estado):
+        """Sobreestimamos"""
+        conflictivos = len(estado.alumnosCX) + len(estado.alumnosCR)
+        normales = len(estado.alumnosXX) + len(estado.alumnosXR)
+        if conflictivos == 0:
+            return normales
+        elif conflictivos == 1 or conflictivos == 2:
+            return normales + conflictivos*2
+        elif conflictivos > 2:
+            return 2*2 + 3*(conflictivos - 2) + normales
         return float('inf')
+
 
     def isFinal(self,N:State):
         if not len(N.alumnosCR) and not len(N.alumnosXX) and not len(N.alumnosXR) and not len(N.alumnosCX):
@@ -277,7 +286,14 @@ class ASTAR:
         left, right = 0,0
         resultado =  []
         while right < len(list_right) and left < len(list_left):
-            if (list_left[left].coste+self.heuristica1(list_left[left].state)) < (list_right[right].coste+self.heuristica1(list_right[right].state)):
+            if (list_left[left].coste+self.heuristica0(list_left[left].state)) == (list_right[right].coste+self.heuristica0(list_right[right].state)):
+                if list_left[left].coste < list_right[right].coste:
+                    resultado.append(list_left[left])
+                    left += 1
+                else:
+                    resultado.append(list_right[right])
+                    right += 1
+            elif (list_left[left].coste+self.heuristica0(list_left[left].state)) < (list_right[right].coste+self.heuristica0(list_right[right].state)):
                 resultado.append(list_left[left])
                 left+=1
             else:
@@ -304,7 +320,12 @@ class ASTAR:
             hi = len(a)
         while lo < hi:
             mid = (lo + hi) // 2
-            if x.coste + self.heuristica1(x.state)< a[mid].coste + self.heuristica1(a[mid].state):
+            if(x.coste + self.heuristica2(x.state) == a[mid].coste + self.heuristica2(a[mid].state)):
+                if x.coste < a[mid].coste:
+                    hi = mid
+                else:
+                    lo = mid + 1
+            elif x.coste + self.heuristica2(x.state)< a[mid].coste + self.heuristica2(a[mid].state):
                 hi = mid
             else:
                 lo = mid + 1
@@ -328,7 +349,13 @@ class ASTAR:
                 for i in succesors:
                     open = self.insertNode(open,i)
 
-
+        for i in range(len(open)):
+            if i < 15:
+                print("XX: " + str(open[i].state.alumnosXX))
+                print("CX: " + str(open[i].state.alumnosCX))
+                print("XR: " + str(open[i].state.alumnosXR))
+                print("CR: " + str(open[i].state.alumnosCR))
+                print(open[i].coste)
         resultado = []
         if exito:
             print("Coste:" + str(N.coste))
@@ -354,13 +381,13 @@ alumnosXX,alumnosXR,alumnosCX,alumnosCR = [],[],[],[]
 
 
 for i in input:
-    if i[1:3] == "XX":
+    if i[-2:] == "XX":
         alumnosXX.append(input[i])
-    elif  i[1:3] == "CX":
+    elif  i[-2:] == "CX":
         alumnosCX.append(input[i])
-    elif i[1:3] == "XR":
+    elif i[-2:] == "XR":
         alumnosXR.append(input[i])
-    elif i[1:3] == "CR":
+    elif i[-2:] == "CR":
         alumnosCR.append(input[i])
 
 
