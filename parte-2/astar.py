@@ -271,8 +271,7 @@ class ASTAR:
                     newnode.sitio = str(node.state.alumnosCR[l])
                     newnode.prev_confl = w[3]
                     succesors.append(newnode)
-        result = self.mergesortNodes(succesors)
-        return result
+        return succesors
 
     def mergeNodes(self,list_left,list_right):
         left, right = 0,0
@@ -289,6 +288,7 @@ class ASTAR:
         resultado += list_right[right:]
         return resultado
 
+
     def mergesortNodes(self,lista):
 
         if len(lista) <= 1:
@@ -298,6 +298,18 @@ class ASTAR:
         left = self.mergesortNodes(lista[:mid])
         right = self.mergesortNodes(lista[mid:])
         return self.mergeNodes(left,right)
+
+    def insertNode(self,a, x, lo=0, hi=None):
+        if hi is None:
+            hi = len(a)
+        while lo < hi:
+            mid = (lo + hi) // 2
+            if x.coste + self.heuristica1(x.state)< a[mid].coste + self.heuristica1(a[mid].state):
+                hi = mid
+            else:
+                lo = mid + 1
+        a.insert(lo, x)
+        return a
 
     def algorithm(self,initstate):
         node = Node(0,initstate,None)
@@ -312,7 +324,11 @@ class ASTAR:
                 exito = True
             else:
                 closed.append(N)
-                open = self.mergeNodes(open,self.expand(N))
+                succesors =  self.expand(N)
+                for i in succesors:
+                    open = self.insertNode(open,i)
+
+
         resultado = []
         if exito:
             print("Coste:" + str(N.coste))
