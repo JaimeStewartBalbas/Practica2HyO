@@ -40,34 +40,27 @@ class Node:
 
 class ASTAR:
 
-    def heuristica0(self)->int:
-        return 0
+
+
 
     def heuristica1(self,estado:State)->int:
+        """ Relajando todas las retricciones, es decir solo hay coste 1"""
+        return len(estado.alumnosXR) + len(estado.alumnosCR) +  len(estado.alumnosXX) + len(estado.alumnosCX)
+
+
+    def heuristica2(self,estado:State)->int:
+        """Relajando restricciones de conflictivos """
         reducidos = len(estado.alumnosXR) + len(estado.alumnosCR)
         normales = len(estado.alumnosXX) + len(estado.alumnosCX)
         if normales >= reducidos:
             return 3*reducidos + 1*(normales-reducidos)
         return float('inf')
 
-    def heuristica2(self,):
-        pass
 
-
-    def heuristica01(self, estado):
-        """Sobreestimamos"""
-        conflictivos = len(estado.alumnosCX) + len(estado.alumnosCR)
-        normales = len(estado.alumnosXX) + len(estado.alumnosXR)
-        if conflictivos == 0:
-            return normales
-        elif conflictivos == 1 or conflictivos == 2:
-            return normales + conflictivos*2
-        elif conflictivos > 2:
-            return 2*2 + 3*(conflictivos - 2) + normales
-        return float('inf')
 
 
     def isFinal(self,N:State):
+        """Comprobamos el estado final """
         if not len(N.alumnosCR) and not len(N.alumnosXX) and not len(N.alumnosXR) and not len(N.alumnosCX):
             return True
         return False
@@ -315,28 +308,44 @@ class ASTAR:
         right = self.mergesortNodes(lista[mid:])
         return self.mergeNodes(left,right)
 
-    def insertNode(self,a, x, lo=0, hi=None):
+    def insertNode(self,a, x,heuristica, lo=0, hi=None):
         if hi is None:
             hi = len(a)
-        while lo < hi:
-            mid = (lo + hi) // 2
-            if(x.coste + self.heuristica1(x.state) == a[mid].coste + self.heuristica1(a[mid].state)):
-                if x.coste < a[mid].coste:
+        if heuristica == '1':
+            while lo < hi:
+                mid = (lo + hi) // 2
+                if(x.coste + self.heuristica1(x.state) == a[mid].coste + self.heuristica1(a[mid].state)):
+                    if x.coste < a[mid].coste:
+                        hi = mid
+                    else:
+                        lo = mid + 1
+                elif x.coste + self.heuristica1(x.state)< a[mid].coste + self.heuristica1(a[mid].state):
                     hi = mid
                 else:
                     lo = mid + 1
-            elif x.coste + self.heuristica1(x.state)< a[mid].coste + self.heuristica1(a[mid].state):
-                hi = mid
-            else:
-                lo = mid + 1
-        a.insert(lo, x)
-        return a
+            a.insert(lo, x)
+            return a
+        elif heuristica == "2":
+            while lo < hi:
+                mid = (lo + hi) // 2
+                if(x.coste + self.heuristica2(x.state) == a[mid].coste + self.heuristica2(a[mid].state)):
+                    if x.coste < a[mid].coste:
+                        hi = mid
+                    else:
+                        lo = mid + 1
+                elif x.coste + self.heuristica2(x.state)< a[mid].coste + self.heuristica2(a[mid].state):
+                    hi = mid
+                else:
+                    lo = mid + 1
+            a.insert(lo, x)
+            return a
 
-    def algorithm(self,initstate):
+    def algorithm(self,initstate,heuristica):
         node = Node(0,initstate,None)
         open = [node]
         closed = []
         exito = False
+        nodos_expandidos = 1
         while len(open) and not exito:
             N = open.pop(0)
             while N in closed:
@@ -346,27 +355,50 @@ class ASTAR:
             else:
                 closed.append(N)
                 succesors =  self.expand(N)
+                nodos_expandidos += len(succesors)
                 for i in succesors:
-                    open = self.insertNode(open,i)
+                    open = self.insertNode(open,i,heuristica)
 
         resultado = []
+        costefin = 0
+        longitud = 0
         if exito:
-            print("Coste:" + str(N.coste))
+            costefin = N.coste
             while N:
+                longitud +=1
                 if N.prevAl:
                     resultado.append(N.sitio)
 
                 N = N.father
-            return resultado
+            return resultado,costefin,(longitud-1),nodos_expandidos
         else:
-            print("No hay solución")
-            return resultado
+            return resultado,costefin,longitud,nodos_expandidos
 
 
-
+#-----------MAIN PROGRAM----------#
 import sys
 
-filePath = "./ASTAR-tests/alumnos10.prob"
+filePath = sys.argv[1]
+heuristica = sys.argv[2]
+def extractFile(myfilepath):
+    file = ""
+    revFile = myfilepath[::-1]
+    char = revFile[0]
+    i = 0
+    while char != "/":
+        char = revFile[i]
+        file = file + char
+        i+=1
+
+    temp = file[::-1]
+    temp2 = temp[1:]
+    return temp2[:-4]
+file = extractFile(filePath)
+
+fileoutput = "./ASTAR-tests/" + file[:-1] +"-" + heuristica + ".output"
+
+filestat = "./ASTAR-tests/" + file[:-1] +"-" + heuristica + ".stat"
+
 with open(filePath) as f:
     input = eval(f.readline())
 
@@ -387,8 +419,13 @@ for i in input:
 
 initstate = State(alumnosXX,alumnosXR,alumnosCX,alumnosCR)
 
+import time
+
+init_time = time.time()
 astar = ASTAR()
-result = astar.algorithm(initstate)
+result , coste ,longitud_plan,nodos_expandidos = astar.algorithm(initstate,heuristica)
+end = (time.time() - init_time)
+
 new = result[::-1]
 inv_map = {v: k for k, v in input.items()}
 output = {}
@@ -396,12 +433,17 @@ for i in new:
     output[inv_map[int(i)]] = int(i)
 
 
-print(output)
+
+with open(fileoutput,"w") as f:
+    f.write(("INICIAL: " + str(input) + "\n"))
+    f.write( ("FINAL: " + str(output) + "\n"))
 
 
-
-
-
+with open(filestat,"w") as f:
+    f.write(("Tiempo total: " + str(end) + "\n"))
+    f.write(("Coste total: " + str(coste) + "\n"))
+    f.write(("Longitud del plan: " + str(longitud_plan) + "\n"))
+    f.write(("Nodos expandidos: " + str(nodos_expandidos) + "\n"))
 
 
 
