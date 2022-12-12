@@ -51,7 +51,7 @@ class ASTAR:
         return float('inf')
 
     def heuristica2(self,):
-
+        pass
 
 
     def heuristica01(self, estado):
@@ -320,12 +320,12 @@ class ASTAR:
             hi = len(a)
         while lo < hi:
             mid = (lo + hi) // 2
-            if(x.coste + self.heuristica2(x.state) == a[mid].coste + self.heuristica2(a[mid].state)):
+            if(x.coste + self.heuristica1(x.state) == a[mid].coste + self.heuristica1(a[mid].state)):
                 if x.coste < a[mid].coste:
                     hi = mid
                 else:
                     lo = mid + 1
-            elif x.coste + self.heuristica2(x.state)< a[mid].coste + self.heuristica2(a[mid].state):
+            elif x.coste + self.heuristica1(x.state)< a[mid].coste + self.heuristica1(a[mid].state):
                 hi = mid
             else:
                 lo = mid + 1
@@ -349,13 +349,6 @@ class ASTAR:
                 for i in succesors:
                     open = self.insertNode(open,i)
 
-        for i in range(len(open)):
-            if i < 15:
-                print("XX: " + str(open[i].state.alumnosXX))
-                print("CX: " + str(open[i].state.alumnosCX))
-                print("XR: " + str(open[i].state.alumnosXR))
-                print("CR: " + str(open[i].state.alumnosCR))
-                print(open[i].coste)
         resultado = []
         if exito:
             print("Coste:" + str(N.coste))
@@ -373,7 +366,7 @@ class ASTAR:
 
 import sys
 
-filePath = "./ASTAR-tests/alumnos.prob"
+filePath = "./ASTAR-tests/alumnos10.prob"
 with open(filePath) as f:
     input = eval(f.readline())
 
