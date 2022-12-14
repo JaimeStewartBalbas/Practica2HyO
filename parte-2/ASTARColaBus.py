@@ -18,7 +18,7 @@ los dos se duplicara respecto al tiempo que se invertir ´ ´ıa si quien ayudas
 
 """
 class State:
-    #Estado que representa
+    #Estado que representa el problema
     def __init__(self,alumnosXX,alumnosXR,alumnosCX,alumnosCR):
         self.alumnosXX = alumnosXX
         self.alumnosXR = alumnosXR
@@ -29,6 +29,7 @@ class State:
 
 
 class Node:
+    """Clase para los nodos del arbol"""
     def __init__(self,coste:int,state:State,prevAl=None,sitio=None,prev_confl=[]):
         self.father = None
         self.state = state
@@ -39,9 +40,7 @@ class Node:
 
 
 class ASTAR:
-
-
-
+    """Clase para implementar los algoritmos de A*"""
 
     def heuristica1(self,estado:State)->int:
         """ Relajando todas las retricciones, es decir solo hay coste 1"""
@@ -66,6 +65,7 @@ class ASTAR:
         return False
 
     def addXX(self,state:State,prevAl,index,prev_confl):
+        """Operador para añadir una persona XX a la cola"""
         extra = 0
         asiento = state.alumnosXX[index]
         for i in prev_confl:
@@ -102,6 +102,7 @@ class ASTAR:
 
 
     def addXR(self,state:State,prevAl,index,prev_confl):
+        """Operador para añadir una persona XR a la cola"""
         extra = 0
         asiento = state.alumnosXR[index]
 
@@ -132,6 +133,7 @@ class ASTAR:
         return float('inf')
 
     def addCX(self,state:State,prevAl, grandpa,index,prev_confl):
+        """Operador para añadir una persona CX a la cola"""
         extra = 0
         asiento = state.alumnosCX[index]
         for i in prev_confl:
@@ -180,6 +182,7 @@ class ASTAR:
         return float('inf')
 
     def addCR(self,state:State,prevAl, grandpa,index,prev_confl):
+        """Operador para añadir una persona CR a la cola"""
         extra = 0
         asiento = state.alumnosCR[index]
         for i in prev_confl:
@@ -222,6 +225,7 @@ class ASTAR:
 
 
     def expand(self,node:Node):
+        """Función para expandir el nodo que entra por parámetro"""
         succesors = []
         for i in range(len(node.state.alumnosXX)):
          x = self.addXX(node.state,node.prevAl,i,node.prev_confl)
@@ -276,6 +280,7 @@ class ASTAR:
         return succesors
 
     def mergeNodes(self,list_left,list_right):
+        """Funcion para mergear nodos NO LO UTILIZAMOS AL FINAL"""
         left, right = 0,0
         resultado =  []
         while right < len(list_right) and left < len(list_left):
@@ -299,6 +304,7 @@ class ASTAR:
 
 
     def mergesortNodes(self,lista):
+        """Función para hacer mergesort a los nodos NO LO UTILIZAMOS AL FINAL"""
 
         if len(lista) <= 1:
             return lista
@@ -309,6 +315,7 @@ class ASTAR:
         return self.mergeNodes(left,right)
 
     def insertNode(self,a, x,heuristica, lo=0, hi=None):
+        """Función para hallar indice con binary search e insertar ordenadamente"""
         if hi is None:
             hi = len(a)
         if heuristica == '1':
@@ -341,6 +348,7 @@ class ASTAR:
             return a
 
     def algorithm(self,initstate,heuristica):
+        """implementación de A*"""
         node = Node(0,initstate,None)
         open = [node]
         closed = []
@@ -376,11 +384,15 @@ class ASTAR:
 
 
 #-----------MAIN PROGRAM----------#
+"""Extraemos los argumentos de teclado"""
 import sys
 
 filePath = sys.argv[1]
 heuristica = sys.argv[2]
+
+
 def extractFile(myfilepath):
+    """Método para extraer el nombre del archivo, dado un path"""
     file = ""
     revFile = myfilepath[::-1]
     char = revFile[0]
@@ -399,12 +411,13 @@ fileoutput = "./ASTAR-tests/" + file[:-1] +"-" + heuristica + ".output"
 
 filestat = "./ASTAR-tests/" + file[:-1] +"-" + heuristica + ".stat"
 
+"""Leemos el input de entrada"""
 with open(filePath) as f:
     input = eval(f.readline())
 
 alumnosXX,alumnosXR,alumnosCX,alumnosCR = [],[],[],[]
 
-
+"""Extraemos los datos y los guardamos en listas"""
 for i in input:
     if i[-2:] == "XX":
         alumnosXX.append(input[i])
@@ -416,11 +429,12 @@ for i in input:
         alumnosCR.append(input[i])
 
 
-
+"""Creamos el estado inicial"""
 initstate = State(alumnosXX,alumnosXR,alumnosCX,alumnosCR)
 
 import time
 
+"""Realizamos las mediciones de tiempo e invocamos ASTAR """
 init_time = time.time()
 astar = ASTAR()
 result , coste ,longitud_plan,nodos_expandidos = astar.algorithm(initstate,heuristica)
@@ -433,7 +447,7 @@ for i in new:
     output[inv_map[int(i)]] = int(i)
 
 
-
+"""Escribimos los resultados en los archibos de salida"""
 with open(fileoutput,"w") as f:
     f.write(("INICIAL: " + str(input) + "\n"))
     f.write( ("FINAL: " + str(output) + "\n"))

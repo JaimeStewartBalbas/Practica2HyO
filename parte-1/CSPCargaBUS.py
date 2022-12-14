@@ -8,6 +8,7 @@ filePath = sys.argv[1]
 
 
 def extractFile(myfilepath):
+    """método que extrae el nombre del arichivo de un path"""
     file = ""
     revFile = myfilepath[::-1]
     char = revFile[0]
@@ -62,6 +63,7 @@ dictMayores = {}
 
 
 def generarAsientosRed():
+    """Método para generar asientos de reducidos """
     for i in asientos_minus:
         if i <= n_asientos//2:
             if i % 4 == 1 or i%4==3:
@@ -134,8 +136,9 @@ def notTogetherMayor(a,b):
     return False
 
 
-#Función que devuelve los asientos próximos al asiento que entra como parámetro
+
 def getColindant(n_sit):
+    """Función que devuelve los asientos próximos al asiento que entra como parámetro"""
     if n_sit % columnas_bus == 0:
         if n_sit // columnas_bus == 1:
             return [n_sit -1, n_sit + columnas_bus - 1, n_sit + columnas_bus]
@@ -160,6 +163,7 @@ def getColindant(n_sit):
                     n_sit + columnas_bus - 1, n_sit + columnas_bus, n_sit + columnas_bus + 1]
 
 def getCloseSits(n_sit):
+    """ Función que te coge los sitios cercanos """
     if n_sit % columnas_bus == 0:
         return [n_sit - 1]
     elif n_sit % columnas_bus == 1:
@@ -172,12 +176,14 @@ def getCloseSits(n_sit):
         return [n_sit - 1, n_sit + 1]
 
 def sitio_en_pasillo(n_sit):
+    """Función que determina si un asiento es pasillo o no"""
     if (n_sit % columnas_bus == columnas_bus//2) or (n_sit % columnas_bus == (columnas_bus//2 + 1)):
         return True
     return False
 
 
 def problematicStudents(a, b):
+    """Funcion para poner a los alumnos conflictivos"""
     sitios_no_validos = getColindant(a)
     if b not in sitios_no_validos:
         return True
@@ -185,23 +191,27 @@ def problematicStudents(a, b):
 
 #Verificamos que los estudiantes menores se sienten en el módulo de delante
 def minorStudents(a):
+    """funcion para poner a los alumnos del primer ciclo ciclo"""
     if a <= n_asientos//2:
         return True
     return False
 
 #Verificamos que los estudiantes mayores se sienten en el módulo de atras
 def mayorStudents(a):
+    """ función para poner a los alumnos del segundo ciclo"""
     if a > n_asientos//2:
         return True
     return False
 
 def hermanos_juntos(a, b):
+    """función para poner a los hermanos juntos"""
     if a <= n_asientos //2 and b <= n_asientos //2:
         sitios_cercanos = getCloseSits(a)
         if b in sitios_cercanos:
             return True
     return False
 def mayor_en_pasillo(a, b):
+    """Función de mayor en el pasillo"""
     if sitio_en_pasillo(a):
         sitios_cercanos = getCloseSits(a)
         if b in sitios_cercanos:
